@@ -143,6 +143,10 @@ function draw() {
         if (openSet.includes(neighbor)) {
           if (tempG < neighbor.g) {
             neighbor.g = tempG;
+          } else {
+            // NO need to update heuristic point.
+            // bug fixed! stop updating previous with current.
+            return;
           }
         } else {
           neighbor.g = tempG;
