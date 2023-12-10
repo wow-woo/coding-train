@@ -15,8 +15,9 @@ function heuristic(a, b) {
   return d;
 }
 
-var cols = 30;
-var rows = 30;
+var solvable = true;
+var cols = 50;
+var rows = 50;
 var grid = new Array(cols);
 
 var openSet = [];
@@ -34,14 +35,24 @@ function Spot(i, j) {
   this.h = 0;
   this.neighbors = [];
   this.previous = undefined;
+  this.wall = false;
+
+  if (random(1) < 0.4) {
+    this.wall = true;
+  }
 
   this.show = (cols) => {
-    fill(cols);
+    if (this.wall) {
+      fill(0);
+    } else {
+      fill(cols);
+    }
     noStroke();
     rect(this.i * w, this.j * h, w - 1, h - 1);
   };
 
   this.addNeighbors = function (grid) {
+    // vertical or horizontal movements.
     if (this.i < cols - 1) {
       this.neighbors.push(grid[i + 1][j]);
     }
@@ -53,6 +64,19 @@ function Spot(i, j) {
     }
     if (j > 0) {
       this.neighbors.push(grid[i][j - 1]);
+    }
+    // diagonal movement.
+    if (i > 0 && j > 0) {
+      this.neighbors.push(grid[i - 1][j - 1]);
+    }
+    if (i < cols - 1 && j > 0) {
+      this.neighbors.push(grid[i + 1][j - 1]);
+    }
+    if (i > 0 && j < rows - 1) {
+      this.neighbors.push(grid[i - 1][j + 1]);
+    }
+    if (i < cols - 1 && j < rows - 1) {
+      this.neighbors.push(grid[i + 1][j + 1]);
     }
   };
 }
@@ -82,6 +106,8 @@ function setup() {
 
   start = grid[0][0];
   end = grid[cols - 1][rows - 1];
+  start.wall = false;
+  end.wall = false;
 
   openSet.push(start);
 }
@@ -110,7 +136,8 @@ function draw() {
     var neighbors = current.neighbors;
     for (let i = 0; i < neighbors.length; i++) {
       let neighbor = neighbors[i];
-      if (!closedSet.includes(neighbor)) {
+
+      if (!closedSet.includes(neighbor) && !neighbor.wall) {
         var tempG = current.g + 1;
 
         if (openSet.includes(neighbor)) {
@@ -129,7 +156,11 @@ function draw() {
     }
   } else {
     // no solution
+    console.log("No solution");
+    solvable = false;
+    noLoop();
   }
+
   background(0);
 
   for (var i = 0; i < cols; i++) {
@@ -145,12 +176,14 @@ function draw() {
     openSet[i].show(color(0, 255, 0));
   }
 
-  path = [];
-  var temp = current;
-  path.push(temp);
-  while (temp.previous) {
-    path.push(temp.previous);
-    temp = temp.previous;
+  if (solvable) {
+    path = [];
+    var temp = current;
+    path.push(temp);
+    while (temp.previous) {
+      path.push(temp.previous);
+      temp = temp.previous;
+    }
   }
 
   for (let i = 0; i < path.length; i++) {
