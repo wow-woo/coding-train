@@ -10,8 +10,8 @@ function removeFromArray(arr, elt) {
   }
 }
 function heuristic(a, b) {
-  //   var d = dist(a.i, a.j, b.i, b.j); // distance
-  var d = abs(a.i - b.i) + abs(a.j - b.j); // mahatan distance
+  var d = dist(a.i, a.j, b.i, b.j); // diagonal distance
+  // var d = abs(a.i - b.i) + abs(a.j - b.j); // taxi distance
   return d;
 }
 
